@@ -22,7 +22,14 @@ class bp_network(object):
 
 		for i in range(1, self.num_layers):
 			prev_outputs = layers[i-1]
-			weight_mtx = np.zeros((layers[i], prev_outputs)) # n x m matrix, each row is a node's input weights
-			bias_vector = np.zeros((layers[i], 1))	# n x 1 bias vector, each row is a node's bias
+			init_parameter = 1 / prev_outputs
+
+			# initialize n x m weight matrix using uniform initialization, each row is a node's input weights
+			weight_mtx = np.random.uniform(-init_parameter, init_parameter, size=(layers[i], prev_outputs)) 
+
+			# n x 1 bias vector, each row is a node's bias
+			bias_vector = np.zeros((layers[i], 1))	
+
 			self.weights.append(weight_mtx)
 			self.biases.append(bias_vector)
+
