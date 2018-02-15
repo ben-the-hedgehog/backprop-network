@@ -47,7 +47,7 @@ class bp_network(object):
 		del_b = [np.zeros(b.shape) for b in self.biases]
 
 		# Forward pass through the network
-		activation = x
+		activation = x.T
 		activations = [activation]
 		net_inputs = []
 
@@ -58,14 +58,14 @@ class bp_network(object):
 			activations.append(activation)
 
 		# Error at output layer
-		delta = self.cost_derivative(activations[-1], y) * sigmoid_prime(net_input[-1]) #dC/dz at output
+		delta = self.cost_derivative(activations[-1], y) * sigmoid_prime(net_inputs[-1]) #dC/dz at output
 		del_b[-1] = delta #dC/db = dC/dz
-		del_w[-1] = np.dot(delta_b[-1], activations[-2].T)
+		del_w[-1] = np.dot(delta, activations[-2].T)
 
 		# propogate error backwards layer by layer
 		for l in range(2, self.num_layers):
 			z = net_inputs[-l]
-			delta = np.dot(self.weights[-l], delta) * sigmoid_prime(z)
+			delta = np.dot(self.weights[-l+1].T, delta) * sigmoid_prime(z)
 			del_b[-l] = delta
 			del_w[-l] = np.dot(delta, activations[-l-1].T)
 
