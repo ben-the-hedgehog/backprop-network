@@ -52,15 +52,28 @@ class bp_network(object):
 		net_inputs = []
 
 		for w, b in zip(self.weights, self.biases):
-			net_input = np.dot(w, activation) + b
-			net_inputs.append(net_input)
-			activation = sigmoid(net_input)
+			z = np.dot(w, activation) + b
+			net_inputs.append(z)
+			activation = sigmoid(z)
 			activations.append(activation)
 
 		# Error at output layer
+		delta = self.cost_derivative(activations[-1], y) * sigmoid_prime(net_input[-1]) #dC/dz at output
+		del_b[-1] = delta #dC/db = dC/dz
+		del_w[-1] = np.dot(delta_b[-1], activations[-2].T)
+
+		# propogate error backwards layer by layer
+		for l in range(2, self.num_layers):
+			z = net_inputs[-l]
+			delta = np.dot(self.weights[-l], delta) * sigmoid_prime(z)
+			del_b[-l] = delta
+			del_w[-l] = np.dot(delta, activations[-l-1].T)
+
+		return (del_w, del_b)
 
 
 	def cost_derivative(self, output_activations, y):
+		"""derivative of the L2 cost function with respect to network output"""
 		return (output_activations - y)
 
 
