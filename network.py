@@ -33,6 +33,19 @@ class bp_network(object):
 			self.weights.append(weight_mtx)
 			self.biases.append(bias_vector)
 
+	def update_SGD(self, x, y):
+		"""
+		Applies a single step of stochastic gradient descent
+
+		:param x:<np.arrray> 1 x m feature vector from dataset
+		:param y:<double> numeric target
+		"""
+		del_w, del_b = self.backpropogate(x, y)
+		self.weights = [w - self.c * dw + self.alpha * w for w, dw in zip(self.weights, del_w)]
+		self.biases = [b - self.c * db + self.alpha * b for b, db in zip(self.weights, del_b)]
+
+		return None
+
 	def backpropogate(self, x, y):
 		"""
 		Apply the backpropogation algorithm to generate the deltas for weights
@@ -71,8 +84,13 @@ class bp_network(object):
 
 		return (del_w, del_b)
 
+	@staticmethod
+	def cost_function(output_activations, y):
+		"""use 1/2 of the square error as the cost function"""
+		return (1/2) * (y - output_activations) ** 2
 
-	def cost_derivative(self, output_activations, y):
+	@staticmethod
+	def cost_derivative(output_activations, y):
 		"""derivative of the L2 cost function with respect to network output"""
 		return (output_activations - y)
 
