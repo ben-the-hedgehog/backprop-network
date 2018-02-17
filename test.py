@@ -56,8 +56,23 @@ def train_test():
 	for w, b in zip(net.weights, net.biases):
 		print(w)
 		print(b)
-		
+
 	print("train_test passed!\n")
+	pass
+
+def validation_test():
+	net = network.bp_classifer([3, 2, 3], 0.1, 0.01)
+	train_X = np.random.randint(10, size=(10, 3))
+	train_D = np.random.randint(3, size=(10, 1))
+	val_X = np.random.randint(10, size=(5, 3))
+	val_D = np.random.randint(3, size=(5, 1))
+	n_epochs = 5
+
+	acc = net.train(train_X, train_D, val_X, val_D, num_epochs=n_epochs)
+	for epoch in range(n_epochs):
+		print(f'epoch {epoch + 1}: {acc[epoch]}')
+
+	print("validation_test passed!\n")
 	pass
 
 if __name__ == '__main__':
@@ -65,3 +80,4 @@ if __name__ == '__main__':
 	backprop_test()
 	update_test()
 	train_test()
+	validation_test()

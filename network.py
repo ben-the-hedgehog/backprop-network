@@ -61,16 +61,16 @@ class bp_classifer(object):
 			for x, y in zip(train_X, train_Y):
 				self.update_SGD(x.reshape(1, self.num_inputs), y)
 
-			if val_X and val_D:
-				predictions = list(map(self.predict, val_X))
+			if val_X is not None and val_D is not None:
+				predictions = self.test(val_X)
 				accuracies.append(accuracy_score(val_D, predictions))
 
 		return accuracies
-		
+
 
 	def test(self, test_X):
 		"""return predicted labels for feature set"""
-		return list(map(self.predict, val_X))
+		return list(map(self.predict, test_X))
 
 
 	def update_SGD(self, x, y):
@@ -91,7 +91,7 @@ class bp_classifer(object):
 		"""
 		generate a predicted label given feature vector x
 		"""
-		activation = x.reshape(1, self.num_inputs)
+		activation = x.reshape(1, self.num_inputs).T
 		for w, b in zip(self.weights, self.biases):
 			z = np.dot(w, activation) + b 
 			activation = sigmoid(z)
