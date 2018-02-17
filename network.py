@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.metrics import accuracy_score
 
 
 class bp_classifer(object):
@@ -33,22 +34,43 @@ class bp_classifer(object):
 			self.weights.append(weight_mtx)
 			self.biases.append(bias_vector)
 
+
 	def one_hot(self, d):
 		"""transforms a numeric label into one-hot column vector"""
 		y = np.zeros((self.num_outputs, 1))
 		y[d] = 1
 		return y
 
-	def train(self, train_X, train_D, val_X=None, val_D=None, num_epochs=1):
 
+	def train(self, train_X, train_D, val_X=None, val_D=None, num_epochs=1):
+		"""
+		train the classifier
+
+		:param train_X:<np.array> feature matrix of training set
+		:param trian_D:<np.array> list of labels for supervised learning
+		:param val_X:<np.array> feature matrix of validation set
+		:param val_D:<np.array> label array for validation
+		:param num_epochs:<int> iterations over the training set
+		"""
+		# First convert training labels to one hot vectors
 		train_Y = list(map(self.one_hot, train_D))
-		val_Y = list(map(self.one_hot, val_D)) if val_D else None
-		error = []
+		accuracies = []
 
 		for epoch in range(num_epochs):
 
 			for x, y in zip(train_X, train_Y):
 				self.update_SGD(x.reshape(1, self.num_inputs), y)
+
+			if val_X and val_D:
+				predictions = list(map(self.predict, val_X))
+				accuracies.append(accuracy_score(val_D, predictions))
+
+		return accuracies
+		
+
+	def test(self, test_X):
+		"""return predicted labels for feature set"""
+		return list(map(self.predict, val_X))
 
 
 	def update_SGD(self, x, y):
@@ -58,12 +80,24 @@ class bp_classifer(object):
 		:param x:<np.arrray> 1 x m feature vector from dataset
 		:param y:<np.array> one-hot target vector indicating desired label
 		"""
-
 		del_w, del_b = self.backpropogate(x, y)
 		self.weights = [w - self.c * dw + self.alpha * w for w, dw in zip(self.weights, del_w)]
 		self.biases = [b - self.c * db + self.alpha * b for b, db in zip(self.biases, del_b)]
 
 		return None
+
+
+	def predict(self, x):
+		"""
+		generate a predicted label given feature vector x
+		"""
+		activation = x.reshape(1, self.num_inputs)
+		for w, b in zip(self.weights, self.biases):
+			z = np.dot(w, activation) + b 
+			activation = sigmoid(z)
+
+		return np.argmax(activation)
+
 
 	def backpropogate(self, x, y):
 		"""
@@ -73,7 +107,6 @@ class bp_classifer(object):
 		:param x:<np.arrray> 1 x m feature vector from dataset
 		:param y:<np.array> one-hot target vector indicating desired label
 		"""
-
 		# These will hold the gradient of the cost function with respect to
 		# weights and biases
 		del_w = [np.zeros(w.shape) for w in self.weights]
@@ -104,6 +137,7 @@ class bp_classifer(object):
 			del_w[-l] = np.dot(delta, activations[-l-1].T)
 
 		return (del_w, del_b)
+
 
 	@staticmethod
 	def cost_function(output_activations, y):
