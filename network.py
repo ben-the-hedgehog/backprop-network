@@ -44,7 +44,7 @@ class bp_classifer(object):
 
 	def train(self, train_X, train_D, val_X=None, val_D=None, num_epochs=1):
 		"""
-		train the classifier
+		train the classifier, return list of validation accuracy per epoch
 
 		:param train_X:<np.array> feature matrix of training set
 		:param trian_D:<np.array> list of labels for supervised learning
@@ -154,6 +154,7 @@ def sigmoid(z):
 	"""
 	The sigmoid function
 	"""
+	z = np.clip(z, -500, 500)
 	return 1.0 / (1.0 + np.exp(-z))
 
 def sigmoid_prime(z):
